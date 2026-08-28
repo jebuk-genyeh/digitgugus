@@ -1,0 +1,351 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  BookOpen, 
+  Calendar, 
+  Folder, 
+  ClipboardList, 
+  ClipboardCheck, 
+  BarChart, 
+  LogOut, 
+  Lock, 
+  User,
+  ExternalLink,
+  Clock
+} from 'lucide-react';
+
+export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [role, setRole] = useState(null); // 'admin' atau 'peserta'
+  
+  // State form login
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  // State untuk waktu saat ini
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update waktu setiap detik
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Fungsi untuk mengecek apakah saat ini masuk dalam rentang waktu yang diizinkan
+  const isTimeInRange = (startHour, endHour) => {
+    const currentHour = currentTime.getHours();
+    return currentHour >= startHour && currentHour < endHour;
+  };
+
+  // Data links microsite
+  const micrositeLinks = [
+    { 
+      id: 1, 
+      title: 'Jadwal Bimtek di Gugus', 
+      desc: 'Jadwal pelaksanaan bimbingan teknis.',
+      url: 'https://drive.google.com/file/d/1f0QdCZguc67wXevR__J_JTbEI-UHj_iN/view?usp=drivesdk', 
+      icon: <Calendar className="w-8 h-8 text-blue-500" />, 
+      adminOnly: false,
+      timeRestricted: false
+    },
+    { 
+      id: 2, 
+      title: 'Materi di Gugus', 
+      desc: 'Kumpulan materi presentasi dan modul.',
+      url: 'https://drive.google.com/drive/folders/1K3OSUwunFvLHOvXHOyR2slBPcRe6WS6g', 
+      icon: <Folder className="w-8 h-8 text-yellow-500" />, 
+      adminOnly: false,
+      timeRestricted: false
+    },
+    { 
+      id: 3, 
+      title: 'Pretest', 
+      desc: 'Evaluasi awal pemahaman peserta. Buka jam 08:00 - 10:00 WIB.',
+      url: 'https://docs.google.com/forms/d/e/1FAIpQLSc6eZuhsN1MY4Ujeeanq8fhe4jP4FHVgG9gxqrEPR-ywM6anw/viewform?usp=dialog', 
+      icon: <ClipboardList className="w-8 h-8 text-purple-500" />, 
+      adminOnly: false,
+      timeRestricted: true,
+      startHour: 8,
+      endHour: 10,
+      type: 'pretest'
+    },
+    { 
+      id: 4, 
+      title: 'Postest', 
+      desc: 'Evaluasi akhir setelah bimbingan teknis. Buka jam 15:00 - 17:00 WIB.',
+      url: 'https://docs.google.com/forms/d/e/1FAIpQLSehITVKM8tN3beRFCowKXhyEmsOGY_WhUw5zW3kDHFtMJU6JQ/viewform?usp=dialog', 
+      icon: <ClipboardCheck className="w-8 h-8 text-green-500" />, 
+      adminOnly: false,
+      timeRestricted: true,
+      startHour: 15,
+      endHour: 17,
+      type: 'postest'
+    },
+    { 
+      id: 5, 
+      title: 'Hasil Pretest', 
+      desc: 'Rekapitulasi nilai pretest peserta.',
+      url: 'https://docs.google.com/spreadsheets/d/1x6IjpXcN57LnMg2qLKIafT3kHhem4ZU1y0C16UvGKxc/edit?usp=sharing', 
+      icon: <BarChart className="w-8 h-8 text-red-500" />, 
+      adminOnly: true,
+      timeRestricted: false
+    },
+    { 
+      id: 6, 
+      title: 'Hasil Postest', 
+      desc: 'Rekapitulasi nilai postest peserta.',
+      url: 'https://docs.google.com/spreadsheets/d/1BZkVovXzIAbDbfrjT3YZ4S1XjUFYbNpCJZvtEzV6LC8/edit?usp=sharing', 
+      icon: <BarChart className="w-8 h-8 text-red-500" />, 
+      adminOnly: true,
+      timeRestricted: false
+    },
+  ];
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setError('');
+
+    // Validasi Akun Admin
+    if (username === 'fasdabpmp' && password === 'fasda#2026') {
+      setRole('admin');
+      setIsLoggedIn(true);
+      setUsername('');
+      setPassword('');
+    } 
+    // Validasi Akun Peserta (Sebagai contoh, menggunakan akun default peserta)
+    else if (username === 'peserta' && password === 'peserta123') {
+      setRole('peserta');
+      setIsLoggedIn(true);
+      setUsername('');
+      setPassword('');
+    } 
+    else {
+      setError('Username atau password salah!');
+    }
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setRole(null);
+  };
+
+  // ------------------------------------
+  // TAMPILAN LOGIN
+  // ------------------------------------
+  if (!isLoggedIn) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="bg-blue-600 p-6 text-center">
+            <BookOpen className="w-12 h-12 text-white mx-auto mb-3" />
+            <h1 className="text-2xl font-bold text-white">Microsite Bimtek BOSP</h1>
+            <p className="text-blue-100 mt-1">Digitalisasi Pembelajaran 2026</p>
+          </div>
+          
+          <div className="p-8">
+            <h2 className="text-xl font-semibold text-gray-800 text-center mb-6">Silakan Login</h2>
+            
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-200 text-red-600 rounded-lg text-sm text-center">
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleLogin} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <User className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="pl-10 w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    placeholder="Masukkan username"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                    placeholder="Masukkan password"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition-colors duration-200"
+              >
+                Masuk
+              </button>
+            </form>
+
+            <div className="mt-8 bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm text-gray-600">
+              <p className="font-semibold mb-2">Info Akun:</p>
+              <ul className="space-y-1">
+                <li><strong>Peserta:</strong> username : peserta/password: peserta123</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ------------------------------------
+  // TAMPILAN DASHBOARD MICROSITE
+  // ------------------------------------
+  
+  // Filter link berdasarkan role
+  const visibleLinks = micrositeLinks.filter(link => {
+    if (role === 'peserta' && link.adminOnly) {
+      return false; // Sembunyikan Hasil Pretest & Postest untuk peserta
+    }
+    return true;
+  });
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans">
+      {/* Navbar */}
+      <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-3">
+              <BookOpen className="h-8 w-8 text-blue-600" />
+              <div>
+                <h1 className="text-xl font-bold text-gray-900 hidden sm:block">Bimtek BOSP Kinerja 2026</h1>
+                <h1 className="text-lg font-bold text-gray-900 sm:hidden">Bimtek BOSP</h1>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-sm">
+                <span className="text-gray-500">Login sebagai:</span>{' '}
+                <span className="font-semibold text-blue-600 capitalize">{role}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex items-center space-x-1 bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-md transition-colors text-sm font-medium"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        {/* Header Section */}
+        <div className="bg-blue-600 rounded-2xl p-8 mb-8 text-white shadow-lg relative overflow-hidden">
+          <div className="relative z-10">
+            <h2 className="text-3xl font-bold mb-2">Digitalisasi Pembelajaran</h2>
+            <p className="text-blue-100 max-w-2xl text-lg">
+              Selamat datang di portal Bimbingan Teknis Implementasi BOSP Kinerja Terbaik Tahun 2026. 
+              {role === 'peserta' ? ' Silakan akses materi dan formulir evaluasi di bawah ini.' : ' Anda memiliki akses admin untuk melihat seluruh data.'}
+            </p>
+          </div>
+          {/* Decorative background circle */}
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-blue-500 opacity-50 blur-3xl"></div>
+        </div>
+
+        {/* Links Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {visibleLinks.map((link) => {
+            // Logika pembatasan waktu HANYA untuk peserta
+            const isRestrictedForUser = role === 'peserta' && link.timeRestricted;
+            const isOpenNow = isRestrictedForUser ? isTimeInRange(link.startHour, link.endHour) : true;
+
+            return (
+              <div key={link.id} className="relative group">
+                <a
+                  href={isOpenNow ? link.url : undefined}
+                  target={isOpenNow ? "_blank" : undefined}
+                  rel={isOpenNow ? "noopener noreferrer" : undefined}
+                  className={`flex flex-col bg-white rounded-xl shadow-sm border p-6 transition-all duration-200 relative overflow-hidden h-full
+                    ${isOpenNow 
+                      ? 'border-gray-100 hover:shadow-md hover:border-blue-200 cursor-pointer' 
+                      : 'border-gray-200 bg-gray-50 opacity-75 cursor-not-allowed'
+                    }`}
+                  onClick={(e) => {
+                    if (!isOpenNow) {
+                      e.preventDefault();
+                    }
+                  }}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div className={`p-3 rounded-lg transition-colors
+                      ${isOpenNow ? 'bg-gray-50 group-hover:bg-blue-50' : 'bg-gray-200 grayscale'}`}
+                    >
+                      {link.icon}
+                    </div>
+                    {isOpenNow ? (
+                      <ExternalLink className="w-5 h-5 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                    ) : (
+                      <Lock className="w-5 h-5 text-gray-400" />
+                    )}
+                  </div>
+                  
+                  <h3 className={`text-lg font-bold mb-1 transition-colors
+                    ${isOpenNow ? 'text-gray-800 group-hover:text-blue-600' : 'text-gray-500'}`}
+                  >
+                    {link.title}
+                  </h3>
+                  
+                  <p className="text-sm text-gray-500 line-clamp-2 mb-4">
+                    {link.desc}
+                  </p>
+
+                  {/* Tampilan Status Waktu (Khusus Peserta dan Menu Terbatas) */}
+                  {isRestrictedForUser && (
+                    <div className="mt-auto pt-4 border-t border-gray-100">
+                      <div className={`flex items-center text-xs font-semibold px-2 py-1.5 rounded-md
+                        ${isOpenNow ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+                      >
+                        <Clock className="w-3.5 h-3.5 mr-1.5" />
+                        {isOpenNow 
+                          ? 'Terbuka (Hingga ' + link.endHour + ':00)'
+                          : `Ditutup (Buka: ${link.startHour < 10 ? '0'+link.startHour : link.startHour}:00 - ${link.endHour < 10 ? '0'+link.endHour : link.endHour}:00)`
+                        }
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Optional tag for admin only links */}
+                  {link.adminOnly && (
+                    <div className="absolute top-4 right-4 bg-red-100 text-red-700 text-xs font-bold px-2 py-1 rounded">
+                      Admin Only
+                    </div>
+                  )}
+                </a>
+              </div>
+            );
+          })}
+        </div>
+        
+      </main>
+      
+      {/* Footer */}
+      <footer className="text-center py-6 text-gray-500 text-sm">
+        &copy; 2026 Bimbingan Teknis BOSP Kinerja Terbaik. All rights reserved.
+      </footer>
+    </div>
+  );
+}
